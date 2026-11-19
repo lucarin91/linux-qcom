@@ -32,6 +32,123 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	/* FLAT0..2 CSI camera connectors; camera addons plug in here */
+	flat0_conn: flat0-connector {
+		compatible = "arduino,monza-csi-connector";
+		#gpio-cells = <2>;
+		gpio-map-mask = <0xf 0x0>;
+		gpio-map-pass-thru = <0x0 0xf>;
+		gpio-map = <0 0 &tlmm 65 0>;	/* P17: FLAT0_P17_GPIO */
+
+		/* /export/ needs the dtc of the Bootlin addon RFC; Kbuild skips it */
+#ifdef DT_ADDON_EXPORTS
+		/export/ connector: &flat0_conn;
+		/export/ conn_i2c: &cci0_i2c0;
+		/export/ conn_csi: &camss_port0;
+		/export/ conn_xclk_24m: &flat0_xclk_24m;
+		/export/ conn_xclk_25m: &flat0_xclk_25m;
+		/export/ conn_xclk_54m: &flat0_xclk_54m;
+#endif
+
+		/* Oscillator of the camera module; the addon picks the frequency */
+		flat0_xclk_24m: clock-24m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <24000000>;
+			clock-output-names = "flat0-xclk-24m";
+		};
+
+		flat0_xclk_25m: clock-25m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <25000000>;
+			clock-output-names = "flat0-xclk-25m";
+		};
+
+		flat0_xclk_54m: clock-54m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <54000000>;
+			clock-output-names = "flat0-xclk-54m";
+		};
+	};
+
+	flat1_conn: flat1-connector {
+		compatible = "arduino,monza-csi-connector";
+		#gpio-cells = <2>;
+		gpio-map-mask = <0xf 0x0>;
+		gpio-map-pass-thru = <0x0 0xf>;
+		gpio-map = <0 0 &tlmm 75 0>;	/* P17: FLAT1_P17_GPIO */
+
+#ifdef DT_ADDON_EXPORTS
+		/export/ connector: &flat1_conn;
+		/export/ conn_i2c: &cci1_i2c0;
+		/export/ conn_csi: &camss_port1;
+		/export/ conn_xclk_24m: &flat1_xclk_24m;
+		/export/ conn_xclk_25m: &flat1_xclk_25m;
+		/export/ conn_xclk_54m: &flat1_xclk_54m;
+#endif
+
+		flat1_xclk_24m: clock-24m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <24000000>;
+			clock-output-names = "flat1-xclk-24m";
+		};
+
+		flat1_xclk_25m: clock-25m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <25000000>;
+			clock-output-names = "flat1-xclk-25m";
+		};
+
+		flat1_xclk_54m: clock-54m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <54000000>;
+			clock-output-names = "flat1-xclk-54m";
+		};
+	};
+
+	flat2_conn: flat2-connector {
+		compatible = "arduino,monza-csi-connector";
+		#gpio-cells = <2>;
+		gpio-map-mask = <0xf 0x0>;
+		gpio-map-pass-thru = <0x0 0xf>;
+		gpio-map = <0 0 &tlmm 82 0>;	/* P17: FLAT2_P17_GPIO */
+
+#ifdef DT_ADDON_EXPORTS
+		/export/ connector: &flat2_conn;
+		/export/ conn_i2c: &cci2_i2c0;
+		/export/ conn_csi: &camss_port2;
+		/export/ conn_xclk_24m: &flat2_xclk_24m;
+		/export/ conn_xclk_25m: &flat2_xclk_25m;
+		/export/ conn_xclk_54m: &flat2_xclk_54m;
+#endif
+
+		flat2_xclk_24m: clock-24m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <24000000>;
+			clock-output-names = "flat2-xclk-24m";
+		};
+
+		flat2_xclk_25m: clock-25m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <25000000>;
+			clock-output-names = "flat2-xclk-25m";
+		};
+
+		flat2_xclk_54m: clock-54m {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <54000000>;
+			clock-output-names = "flat2-xclk-54m";
+		};
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-0 = <&gpio_keys_default>;
@@ -218,6 +335,28 @@
 	};
 };
 
+&camss {
+	vdda-phy-supply = <&vreg_l4a>;
+	vdda-pll-supply = <&vreg_l5a>;
+
+	status = "okay";
+
+	ports {
+		camss_port0: port@0 {
+		};
+
+		camss_port1: port@1 {
+		};
+
+		camss_port2: port@2 {
+		};
+	};
+};
+
+&cci0 {
+	status = "okay";
+};
+
 &cci1 {
 	status = "okay";
 };
@@ -339,6 +478,14 @@
 			#cooling-cells = <2>;
 		};
 	};
+};
+
+&cci2 {
+	/* cci2_1 pins include gpio55 (W_DISABLE2) */
+	pinctrl-0 = <&cci2_0_default>;
+	pinctrl-1 = <&cci2_0_sleep>;
+
+	status = "okay";
 };
 
 &ethernet0 {

@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/* Arducam OV9281 global shutter camera (OmniVision OV9281), 2 lanes, on one Arduino CSI camera connector */
+/* The connector exports conn_i2c, conn_csi, conn_xclk_{24,25,54}m; its GPIO 0 is the camera enable */
+
+/dts-v1/;
+/addon/;
+
+/import/ connector: "arduino,csi-connector";
+
+&connector.conn_i2c {
+	sensor@60 {
+		compatible = "ovti,ov9281";
+		reg = <0x60>;
+		clocks = <&connector.conn_xclk_24m>;
+		reset-gpios = <&connector 0 0>;
+
+		port {
+			sensor_ep: endpoint {
+				remote-endpoint = <&csi_ep>;
+				data-lanes = <1 2>;
+				link-frequencies = /bits/ 64 <400000000>;
+			};
+		};
+	};
+};
+
+&connector.conn_csi {
+	csi_ep: endpoint {
+		data-lanes = <0 1>;
+		remote-endpoint = <&sensor_ep>;
+	};
+};

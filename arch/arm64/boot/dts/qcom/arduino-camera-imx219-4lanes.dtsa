@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/* Sony IMX219 camera module, 4 lanes, on one Arduino CSI camera connector */
+/* The connector exports conn_i2c, conn_csi, conn_xclk_{24,25,54}m; its GPIO 0 is the camera reset */
+
+/dts-v1/;
+/addon/;
+
+/import/ connector: "arduino,csi-connector";
+
+&connector.conn_i2c {
+	sensor@10 {
+		compatible = "sony,imx219";
+		reg = <0x10>;
+		clocks = <&connector.conn_xclk_24m>;
+		reset-gpios = <&connector 0 0>;
+
+		port {
+			sensor_ep: endpoint {
+				remote-endpoint = <&csi_ep>;
+				clock-lanes = <0>;
+				data-lanes = <1 2 3 4>;
+				link-frequencies = /bits/ 64 <364000000>;
+			};
+		};
+	};
+};
+
+&connector.conn_csi {
+	csi_ep: endpoint {
+		data-lanes = <0 1 2 3>;
+		remote-endpoint = <&sensor_ep>;
+	};
+};

@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/* Raspberry Pi Global Shutter Camera (Sony IMX296), 1 lane, on one Arduino CSI camera connector */
+/* The connector exports conn_i2c, conn_csi, conn_xclk_{24,25,54}m; its GPIO 0 is the camera enable */
+
+/dts-v1/;
+/addon/;
+
+/import/ connector: "arduino,csi-connector";
+
+&connector.conn_i2c {
+	sensor@1a {
+		compatible = "sony,imx296";
+		reg = <0x1a>;
+		clocks = <&connector.conn_xclk_54m>;
+		clock-names = "inck";
+		/* XCLR is low to run the sensor; the enable pin is high to run it */
+		reset-gpios = <&connector 0 1>;
+
+		port {
+			sensor_ep: endpoint {
+				remote-endpoint = <&csi_ep>;
+				data-lanes = <1>;
+			};
+		};
+	};
+};
+
+&connector.conn_csi {
+	csi_ep: endpoint {
+		data-lanes = <0>;
+		remote-endpoint = <&sensor_ep>;
+	};
+};

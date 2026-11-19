@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/* Raspberry Pi Camera v1.3 (OmniVision OV5647), 2 lanes, on one Arduino CSI camera connector */
+/* The connector exports conn_i2c, conn_csi, conn_xclk_{24,25,54}m; its GPIO 0 is the camera enable */
+
+/dts-v1/;
+/addon/;
+
+/import/ connector: "arduino,csi-connector";
+
+&connector.conn_i2c {
+	sensor@36 {
+		compatible = "ovti,ov5647";
+		reg = <0x36>;
+		clocks = <&connector.conn_xclk_25m>;
+		/* pwdn is low to run the sensor; the enable pin is high to run it */
+		pwdn-gpios = <&connector 0 1>;
+
+		port {
+			sensor_ep: endpoint {
+				remote-endpoint = <&csi_ep>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+				clock-noncontinuous;
+			};
+		};
+	};
+};
+
+&connector.conn_csi {
+	csi_ep: endpoint {
+		data-lanes = <0 1>;
+		remote-endpoint = <&sensor_ep>;
+	};
+};
